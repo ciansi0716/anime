@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的動漫紀錄</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>📺 我的動漫紀錄</h1>
+        
+        <div class="controls-bar">
+            <input type="text" id="search-input" placeholder="🔍 搜尋動畫名稱..." />
+            
+            <select id="category-filter">
+                <option value="all">全部顯示</option>
+                <option value="watched">已觀看</option>
+                <option value="unwatched">未觀看</option>
+                <option value="multi">多季動畫</option>
+            </select>
+            
+            <select id="sort-select">
+                <option value="newest">日期：新 → 舊</option>
+                <option value="oldest">日期：舊 → 新</option>
+                <option value="id_asc">編號：小 → 大</option>
+                <option value="id_desc">編號：大 → 小</option>
+            </select>
+
+            <button id="btn-add" class="action-btn add-btn">+ 新增動畫</button>
+        </div>
+    </header>
+
+    <div id="anime-grid" class="grid-container">
+        <p class="loading-text">正在從 Google 試算表讀取資料...</p>
+    </div>
+
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('detail-modal')">&times;</span>
+            <div class="modal-body">
+                <img id="modal-img" src="" alt="封面圖">
+                <div class="modal-info">
+                    <h2 id="modal-title">標題</h2>
+                    
+                    <div id="modal-rating" class="star-rating"></div>
+                    
+                    <p>狀態：<span id="modal-status" class="status-badge">--</span></p>
+                    
+                    <p class="modal-meta">編號：<span id="modal-id">--</span> | 集數：<span id="modal-eps">--</span></p>
+                    <p>上架日期：<span id="modal-date">--</span></p>
+                    <p>備註：<span id="modal-note">--</span></p>
+
+                    <div class="action-buttons">
+                        <button id="btn-edit" class="action-btn edit-btn">✏️ 修改</button>
+                        <button id="btn-delete" class="action-btn delete-btn">🗑️ 刪除</button>
+                    </div>
+
+                    <div id="related-series-area" style="display:none;">
+                        <h4>🎬 同系列作品：</h4>
+                        <div id="related-list" class="related-list"></div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="modal-links">
+                        <a id="link-bahamut" href="#" target="_blank" class="btn-link baha">動畫瘋搜尋</a>
+                        <a id="link-bilibili" href="#" target="_blank" class="btn-link bili">Bilibili 搜尋</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="form-modal" class="modal">
+        <div class="modal-content form-content">
+            <span class="close-btn" onclick="closeModal('form-modal')">&times;</span>
+            <h2 id="form-header-title">編輯動畫</h2>
+            <form id="anime-form">
+                <input type="hidden" id="form-rowIndex">
+                <input type="hidden" id="form-sheetName">
+                <input type="hidden" id="form-action"> <div class="form-group">
+                    <label>歸類工作表:</label>
+                    <select id="form-sheet-select">
+                        <option value="單季">單季 (已看)</option>
+                        <option value="單季 未看">單季 (未看)</option>
+                        <option value="多季">多季</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>編號 (ID):</label>
+                        <input type="text" id="form-id" placeholder="例: 001-01" required>
+                    </div>
+                    <div class="form-group half">
+                        <label>上架日期:</label>
+                        <input type="date" id="form-date">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>動畫名稱:</label>
+                    <input type="text" id="form-title-input" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>集數:</label>
+                        <input type="text" id="form-eps">
+                    </div>
+                    <div class="form-group half">
+                        <label>評分 (1-5):</label>
+                        <input type="number" id="form-rating" min="1" max="5">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>圖片連結:</label>
+                    <input type="text" id="form-img" placeholder="https://...">
+                </div>
+
+                <div class="form-group">
+                    <label>備註:</label>
+                    <textarea id="form-note" rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="action-btn submit-btn">💾 儲存資料</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
