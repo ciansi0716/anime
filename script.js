@@ -1,102 +1,116 @@
 // ↓↓↓ 請在這裡貼上你最新的 GAS 網址 ↓↓↓
 const apiUrl = "https://script.google.com/macros/s/AKfycbzbyQYGziyhu6kThVsFVgyhwG4TOljoPJ1hgK9IRaZlmTZKrkOoyh1IDeO0JkQO8dhZIw/exec";
 
-// --- 設定預設圖片 (當連結空白或破圖時顯示) ---
-// 使用 placehold.co 產生一張灰底黑字，寫著「待更新」的圖片
+// 預設圖片 (待更新)
 const defaultImg = "https://placehold.co/200x300/e0e0e0/333333?text=待更新&font=roboto";
 
-// DOM 元素選取
+// 分頁設定
+const itemsPerPage = 20;
+let currentPage = 1;
+let allAnimeData = [];
+let currentFilteredData = [];
+
+// DOM
 const gridContainer = document.getElementById('anime-grid');
 const filterSelect = document.getElementById('category-filter');
 const typeSelect = document.getElementById('type-filter');
 const sortSelect = document.getElementById('sort-select');
 const searchInput = document.getElementById('search-input');
 const btnAdd = document.getElementById('btn-add');
+const btnLoadMoreContainer = document.getElementById('load-more-container');
+const btnLoadMore = document.getElementById('btn-load-more');
 
 const detailModal = document.getElementById('detail-modal');
 const formModal = document.getElementById('form-modal');
 const animeForm = document.getElementById('anime-form');
 
-let allAnimeData = [];
-
 // --- 1. 抓取資料 ---
 async function fetchAnimeData() {
     try {
         gridContainer.innerHTML = '<p class="loading-text">資料載入中，請稍候...</p>';
+        btnLoadMoreContainer.style.display = 'none';
         const response = await fetch(apiUrl);
         const data = await response.json();
         
-        if (!Array.isArray(data)) {
-            throw new Error("資料格式錯誤");
-        }
-        
+        if (!Array.isArray(data)) throw new Error("資料格式錯誤");
         allAnimeData = data;
-        applyFilterAndSort(); // 載入完成，顯示畫面
+        applyFilterAndSort();
     } catch (error) {
         console.error("Error:", error);
         gridContainer.innerHTML = "<p>讀取失敗，請檢查網址或網路。</p>";
     }
 }
 
-// --- 2. 篩選、排序與搜尋 ---
+// --- 2. 篩選與排序 ---
 function applyFilterAndSort() {
     let result = [...allAnimeData];
 
-    // A. 搜尋關鍵字
+    // Search
     const keyword = searchInput.value.toLowerCase().trim();
     if (keyword) {
-        result = result.filter(item => 
-            String(item.title).toLowerCase().includes(keyword)
-        );
+        result = result.filter(item => String(item.title).toLowerCase().includes(keyword));
     }
 
-    // B. 狀態篩選 (已看/未看)
+    // Status Filter
     const category = filterSelect.value;
     if (category !== 'all') {
         result = result.filter(item => item.status === category);
     }
 
-    // C. 類型篩選 (新增：單季/多季)
+    // Type Filter
     const type = typeSelect.value;
     if (type !== 'all') {
         result = result.filter(item => item.type === type);
     }
 
-    // D. 排序
+    // Sort
     const sortType = sortSelect.value;
     result.sort((a, b) => {
-        // 日期
         if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
         if (sortType === 'oldest') return new Date(a.date) - new Date(b.date);
-        // ID
         if (sortType === 'id_asc') return String(a.id).localeCompare(String(b.id));
         if (sortType === 'id_desc') return String(b.id).localeCompare(String(a.id));
-        // 評分
         if (sortType === 'rating_desc') return (Number(b.rating) || 0) - (Number(a.rating) || 0);
         if (sortType === 'rating_asc') return (Number(a.rating) || 0) - (Number(b.rating) || 0);
     });
 
-    renderAnime(result);
+    // Reset Pagination
+    currentFilteredData = result;
+    currentPage = 1;
+    gridContainer.innerHTML = '';
+    loadMoreAnime();
 }
 
-// --- 3. 渲染卡片 ---
-function renderAnime(data) {
-    gridContainer.innerHTML = '';
-    
-    if (data.length === 0) {
+// --- 3. 分頁載入 ---
+function loadMoreAnime() {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = currentPage * itemsPerPage;
+    const dataChunk = currentFilteredData.slice(start, end);
+
+    if (currentPage === 1 && dataChunk.length === 0) {
         gridContainer.innerHTML = "<p style='grid-column:1/-1;text-align:center;'>沒有符合條件的動畫。</p>";
+        btnLoadMoreContainer.style.display = 'none';
         return;
     }
 
+    renderAnime(dataChunk);
+
+    if (end >= currentFilteredData.length) {
+        btnLoadMoreContainer.style.display = 'none';
+    } else {
+        btnLoadMoreContainer.style.display = 'block';
+    }
+}
+
+// --- 4. 渲染卡片 ---
+function renderAnime(data) {
     data.forEach(anime => {
         const starHTML = getStarString(anime.rating);
-        
-        // 判斷：如果有圖片連結就用，沒有就用「待更新」圖
-        // 即使有連結，如果載入失敗 (onerror)，也會切換成「待更新」圖
         const displayImg = anime.image ? anime.image : defaultImg;
 
         const card = document.createElement('div');
         card.className = 'anime-card';
+        card.style.animation = "fadeIn 0.5s ease";
         card.innerHTML = `
             <img src="${displayImg}" onerror="this.src='${defaultImg}'" alt="${anime.title}">
             <div class="card-info">
@@ -111,14 +125,13 @@ function renderAnime(data) {
     });
 }
 
-// --- 4. 開啟詳細彈窗 ---
+// --- 5. 詳細彈窗 ---
 function openDetailModal(anime) {
     document.getElementById('modal-title').innerText = anime.title;
     
-    // 圖片處理邏輯同上
     const imgEl = document.getElementById('modal-img');
     imgEl.src = anime.image ? anime.image : defaultImg;
-    imgEl.onerror = function() { this.src = defaultImg; }; // 綁定錯誤處理
+    imgEl.onerror = function() { this.src = defaultImg; };
 
     document.getElementById('modal-rating').innerHTML = getStarString(anime.rating);
     
@@ -131,25 +144,16 @@ function openDetailModal(anime) {
     document.getElementById('modal-date').innerText = anime.date;
     document.getElementById('modal-note').innerText = anime.note || "無";
 
-    // 設定外部連結
-    // 1. 先把標題拿出來處理
-    let searchTitle = anime.title;
-    
-    // 2. 使用正規表達式：遇到 "半形(" 或 "全形（" 就把後面全部刪除，並去除前後空白
-    // 例如："我推的孩子 (第二季)" -> "我推的孩子"
-    searchTitle = searchTitle.replace(/[\(（].*$/, '').trim();
-
-    // 3. 編碼並設定網址
+    // 搜尋去括號
+    let searchTitle = anime.title.replace(/[\(（].*$/, '').trim();
     const encoded = encodeURIComponent(searchTitle);
-    
     document.getElementById('link-bahamut').href = `https://ani.gamer.com.tw/search.php?keyword=${encoded}`;
     document.getElementById('link-bilibili').href = `https://search.bilibili.com/all?keyword=${encoded}`;
 
-    // 按鈕事件
     document.getElementById('btn-edit').onclick = () => openEditForm(anime);
     document.getElementById('btn-delete').onclick = () => deleteAnime(anime);
 
-    // 同系列判斷
+    // 同系列邏輯
     const relatedArea = document.getElementById('related-series-area');
     const relatedList = document.getElementById('related-list');
     relatedList.innerHTML = '';
@@ -181,11 +185,10 @@ function openDetailModal(anime) {
     document.body.style.overflow = "hidden";
 }
 
-// --- 5. 新增 / 修改 表單邏輯 ---
+// --- 6. 新增/修改表單 ---
 function openEditForm(anime = null) {
-    detailModal.style.display = "none"; 
+    detailModal.style.display = "none";
     formModal.style.display = "block";
-
     const sheetSelect = document.getElementById('form-sheet-select');
 
     if (anime) {
@@ -193,7 +196,6 @@ function openEditForm(anime = null) {
         document.getElementById('form-action').value = "edit";
         document.getElementById('form-rowIndex').value = anime.rowIndex;
         document.getElementById('form-sheetName').value = anime.sheetName;
-        
         sheetSelect.value = anime.sheetName;
         sheetSelect.disabled = true;
 
@@ -208,11 +210,33 @@ function openEditForm(anime = null) {
         document.getElementById('form-header-title').innerText = "新增動畫";
         document.getElementById('form-action').value = "add";
         document.getElementById('anime-form').reset();
-        
         sheetSelect.disabled = false;
         sheetSelect.value = "單季";
     }
 }
+
+// 自動抓圖 (Jikan API)
+document.getElementById('btn-auto-img').addEventListener('click', async () => {
+    const titleInput = document.getElementById('form-title-input');
+    const imgInput = document.getElementById('form-img');
+    const btn = document.getElementById('btn-auto-img');
+    const originalText = btn.innerText;
+    const keyword = titleInput.value.trim();
+
+    if (!keyword) { alert("請先輸入名稱！"); return; }
+    btn.innerText = "搜尋中..."; btn.disabled = true;
+
+    try {
+        const response = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(keyword)}&limit=1`);
+        const data = await response.json();
+        if (data.data && data.data.length > 0) {
+            imgInput.value = data.data[0].images.jpg.large_image_url;
+            imgInput.style.backgroundColor = "#d4edda";
+            setTimeout(() => imgInput.style.backgroundColor = "white", 500);
+        } else { alert("找不到圖片，請簡化名稱再試。"); }
+    } catch (e) { alert("API 連線失敗，請稍後再試。"); } 
+    finally { btn.innerText = originalText; btn.disabled = false; }
+});
 
 // 提交表單
 animeForm.onsubmit = async (e) => {
@@ -221,8 +245,7 @@ animeForm.onsubmit = async (e) => {
 
     const btn = document.querySelector('.submit-btn');
     const originalText = btn.innerText;
-    btn.innerText = "處理中...";
-    btn.disabled = true;
+    btn.innerText = "處理中..."; btn.disabled = true;
 
     const formData = {
         action: document.getElementById('form-action').value,
@@ -241,116 +264,55 @@ animeForm.onsubmit = async (e) => {
     };
 
     try {
-        await fetch(apiUrl, {
-            method: 'POST',
-            body: JSON.stringify(formData)
-        });
+        await fetch(apiUrl, { method: 'POST', body: JSON.stringify(formData) });
         alert("儲存成功！");
         closeModal('form-modal');
-        fetchAnimeData(); 
-    } catch (error) {
-        alert("錯誤：" + error);
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
+        fetchAnimeData();
+    } catch (error) { alert("錯誤：" + error); } 
+    finally { btn.innerText = originalText; btn.disabled = false; }
 };
 
-// --- 6. 刪除資料 ---
+// 刪除
 async function deleteAnime(anime) {
-    if (!confirm(`確定要刪除「${anime.title}」嗎？此動作無法復原！`)) return;
-
+    if (!confirm(`確定要刪除「${anime.title}」嗎？`)) return;
     try {
         document.getElementById('modal-title').innerText = "刪除中...";
         await fetch(apiUrl, {
             method: 'POST',
-            body: JSON.stringify({
-                action: 'delete',
-                sheetName: anime.sheetName,
-                rowIndex: anime.rowIndex,
-                id: anime.id
-            })
+            body: JSON.stringify({ action: 'delete', sheetName: anime.sheetName, rowIndex: anime.rowIndex, id: anime.id })
         });
         alert("已刪除！");
         closeModal('detail-modal');
         fetchAnimeData();
-    } catch (error) {
-        alert("刪除失敗：" + error);
-        document.getElementById('modal-title').innerText = anime.title;
-    }
+    } catch (error) { alert("刪除失敗"); document.getElementById('modal-title').innerText = anime.title; }
 }
 
-// --- 工具函式 ---
+// 載入更多
+btnLoadMore.addEventListener('click', () => {
+    currentPage++;
+    loadMoreAnime();
+});
+
+// 工具
 function getStarString(rating) {
     if (!rating) return "";
     const score = Math.max(0, Math.min(5, parseInt(rating)));
     return "★".repeat(score) + "☆".repeat(5 - score);
 }
-
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = "none";
     document.body.style.overflow = "auto";
 }
-
 window.onclick = (event) => {
     if (event.target == detailModal) closeModal('detail-modal');
     if (event.target == formModal) closeModal('form-modal');
 }
 
-// 監聽器
+// 監聽
 searchInput.addEventListener('input', applyFilterAndSort);
 filterSelect.addEventListener('change', applyFilterAndSort);
 typeSelect.addEventListener('change', applyFilterAndSort);
 sortSelect.addEventListener('change', applyFilterAndSort);
 btnAdd.addEventListener('click', () => openEditForm(null));
 
-// 啟動
 fetchAnimeData();
-// --- 新功能：自動搜尋圖片 (Jikan API) ---
-document.getElementById('btn-auto-img').addEventListener('click', async () => {
-    // 1. 取得使用者輸入的動畫名稱
-    const titleInput = document.getElementById('form-title-input');
-    const imgInput = document.getElementById('form-img');
-    const btn = document.getElementById('btn-auto-img');
-    const originalText = btn.innerText;
-
-    const keyword = titleInput.value.trim();
-
-    if (!keyword) {
-        alert("請先輸入「動畫名稱」才能搜尋圖片喔！");
-        return;
-    }
-
-    // 2. 按鈕變更狀態
-    btn.innerText = "搜尋中...";
-    btn.disabled = true;
-
-    try {
-        // 3. 呼叫 Jikan API (MyAnimeList 資料庫)
-        // q=關鍵字, limit=1 (只抓第一筆), type=anime
-        const response = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(keyword)}&limit=1`);
-        const data = await response.json();
-
-        // 4. 檢查是否有結果
-        if (data.data && data.data.length > 0) {
-            // 取得第一筆結果的大圖
-            const imageUrl = data.data[0].images.jpg.large_image_url;
-            
-            // 填入輸入框
-            imgInput.value = imageUrl;
-            
-            // 稍微閃爍一下提示成功
-            imgInput.style.backgroundColor = "#d4edda";
-            setTimeout(() => imgInput.style.backgroundColor = "white", 500);
-        } else {
-            alert("找不到這部動畫的圖片，請試著簡化名稱 (例如刪除季數) 再試試看。");
-        }
-    } catch (error) {
-        console.error("API Error:", error);
-        alert("搜尋失敗，可能是網路問題或 API 限制，請稍後再試。");
-    } finally {
-        // 恢復按鈕
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
-});
