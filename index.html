@@ -121,7 +121,13 @@
 
                 <div class="form-group">
                     <label>圖片連結:</label>
-                    <input type="text" id="form-img" placeholder="https://...">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="form-img" placeholder="https://..." style="flex: 1;">
+                        <button type="button" id="btn-auto-img" class="action-btn" style="background-color: #6f42c1; width: auto; white-space: nowrap;">
+                            🔍 自動抓圖
+                        </button>
+                    </div>
+                    <small style="color: #666; font-size: 0.8em;">提示：先輸入動畫名稱，再點擊自動抓圖</small>
                 </div>
 
                 <div class="form-group">

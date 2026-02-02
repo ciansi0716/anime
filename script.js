@@ -308,3 +308,51 @@ btnAdd.addEventListener('click', () => openEditForm(null));
 
 // 啟動
 fetchAnimeData();
+// --- 新功能：自動搜尋圖片 (Jikan API) ---
+document.getElementById('btn-auto-img').addEventListener('click', async () => {
+    // 1. 取得使用者輸入的動畫名稱
+    const titleInput = document.getElementById('form-title-input');
+    const imgInput = document.getElementById('form-img');
+    const btn = document.getElementById('btn-auto-img');
+    const originalText = btn.innerText;
+
+    const keyword = titleInput.value.trim();
+
+    if (!keyword) {
+        alert("請先輸入「動畫名稱」才能搜尋圖片喔！");
+        return;
+    }
+
+    // 2. 按鈕變更狀態
+    btn.innerText = "搜尋中...";
+    btn.disabled = true;
+
+    try {
+        // 3. 呼叫 Jikan API (MyAnimeList 資料庫)
+        // q=關鍵字, limit=1 (只抓第一筆), type=anime
+        const response = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(keyword)}&limit=1`);
+        const data = await response.json();
+
+        // 4. 檢查是否有結果
+        if (data.data && data.data.length > 0) {
+            // 取得第一筆結果的大圖
+            const imageUrl = data.data[0].images.jpg.large_image_url;
+            
+            // 填入輸入框
+            imgInput.value = imageUrl;
+            
+            // 稍微閃爍一下提示成功
+            imgInput.style.backgroundColor = "#d4edda";
+            setTimeout(() => imgInput.style.backgroundColor = "white", 500);
+        } else {
+            alert("找不到這部動畫的圖片，請試著簡化名稱 (例如刪除季數) 再試試看。");
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+        alert("搜尋失敗，可能是網路問題或 API 限制，請稍後再試。");
+    } finally {
+        // 恢復按鈕
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+});
