@@ -15,10 +15,15 @@
             <input type="text" id="search-input" placeholder="🔍 搜尋動畫名稱..." />
             
             <select id="category-filter">
-                <option value="all">全部顯示</option>
+                <option value="all">狀態：全部</option>
                 <option value="watched">已觀看</option>
                 <option value="unwatched">未觀看</option>
-                <option value="multi">多季動畫</option>
+                </select>
+            
+            <select id="type-filter">
+                <option value="all">類型：全部</option>
+                <option value="single">單季</option>
+                <option value="multi">多季</option>
             </select>
             
             <select id="sort-select">
@@ -26,8 +31,7 @@
                 <option value="oldest">日期：舊 → 新</option>
                 <option value="id_asc">編號：小 → 大</option>
                 <option value="id_desc">編號：大 → 小</option>
-                
-                <option value="rating_desc">評分：高 → 低 (神作優先)</option>
+                <option value="rating_desc">評分：高 → 低</option>
                 <option value="rating_asc">評分：低 → 高</option>
             </select>
 

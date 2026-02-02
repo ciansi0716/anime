@@ -8,6 +8,7 @@ const defaultImg = "https://placehold.co/200x300/e0e0e0/333333?text=待更新&fo
 // DOM 元素選取
 const gridContainer = document.getElementById('anime-grid');
 const filterSelect = document.getElementById('category-filter');
+const typeSelect = document.getElementById('type-filter');
 const sortSelect = document.getElementById('sort-select');
 const searchInput = document.getElementById('search-input');
 const btnAdd = document.getElementById('btn-add');
@@ -41,7 +42,7 @@ async function fetchAnimeData() {
 function applyFilterAndSort() {
     let result = [...allAnimeData];
 
-    // A. 搜尋
+    // A. 搜尋關鍵字
     const keyword = searchInput.value.toLowerCase().trim();
     if (keyword) {
         result = result.filter(item => 
@@ -49,35 +50,31 @@ function applyFilterAndSort() {
         );
     }
 
-    // B. 分類篩選
+    // B. 狀態篩選 (已看/未看)
     const category = filterSelect.value;
-    if (category === 'multi') {
-        result = result.filter(item => item.type === 'multi');
-    } else if (category !== 'all') {
+    if (category !== 'all') {
         result = result.filter(item => item.status === category);
     }
 
-    // C. 排序 (Sort)
-        const sortType = sortSelect.value;
-        result.sort((a, b) => {
-            // 日期排序
-            if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
-            if (sortType === 'oldest') return new Date(a.date) - new Date(b.date);
-            
-            // 編號 ID 排序
-            if (sortType === 'id_asc') return String(a.id).localeCompare(String(b.id));
-            if (sortType === 'id_desc') return String(b.id).localeCompare(String(a.id));
-            
-            // --- ↓↓↓ 新增：評分排序 ↓↓↓ ---
-            if (sortType === 'rating_desc') {
-                // 高到低：沒有評分(0)的會排在最後面
-                return (Number(b.rating) || 0) - (Number(a.rating) || 0);
-            }
-            if (sortType === 'rating_asc') {
-                // 低到高
-                return (Number(a.rating) || 0) - (Number(b.rating) || 0);
-            }
-        });
+    // C. 類型篩選 (新增：單季/多季)
+    const type = typeSelect.value;
+    if (type !== 'all') {
+        result = result.filter(item => item.type === type);
+    }
+
+    // D. 排序
+    const sortType = sortSelect.value;
+    result.sort((a, b) => {
+        // 日期
+        if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
+        if (sortType === 'oldest') return new Date(a.date) - new Date(b.date);
+        // ID
+        if (sortType === 'id_asc') return String(a.id).localeCompare(String(b.id));
+        if (sortType === 'id_desc') return String(b.id).localeCompare(String(a.id));
+        // 評分
+        if (sortType === 'rating_desc') return (Number(b.rating) || 0) - (Number(a.rating) || 0);
+        if (sortType === 'rating_asc') return (Number(a.rating) || 0) - (Number(b.rating) || 0);
+    });
 
     renderAnime(result);
 }
@@ -303,6 +300,7 @@ window.onclick = (event) => {
 // 監聽器
 searchInput.addEventListener('input', applyFilterAndSort);
 filterSelect.addEventListener('change', applyFilterAndSort);
+typeSelect.addEventListener('change', applyFilterAndSort);
 sortSelect.addEventListener('change', applyFilterAndSort);
 btnAdd.addEventListener('click', () => openEditForm(null));
 
