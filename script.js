@@ -57,14 +57,27 @@ function applyFilterAndSort() {
         result = result.filter(item => item.status === category);
     }
 
-    // C. 排序
-    const sortType = sortSelect.value;
-    result.sort((a, b) => {
-        if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
-        if (sortType === 'oldest') return new Date(a.date) - new Date(b.date);
-        if (sortType === 'id_asc') return String(a.id).localeCompare(String(b.id));
-        if (sortType === 'id_desc') return String(b.id).localeCompare(String(a.id));
-    });
+    // C. 排序 (Sort)
+        const sortType = sortSelect.value;
+        result.sort((a, b) => {
+            // 日期排序
+            if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
+            if (sortType === 'oldest') return new Date(a.date) - new Date(b.date);
+            
+            // 編號 ID 排序
+            if (sortType === 'id_asc') return String(a.id).localeCompare(String(b.id));
+            if (sortType === 'id_desc') return String(b.id).localeCompare(String(a.id));
+            
+            // --- ↓↓↓ 新增：評分排序 ↓↓↓ ---
+            if (sortType === 'rating_desc') {
+                // 高到低：沒有評分(0)的會排在最後面
+                return (Number(b.rating) || 0) - (Number(a.rating) || 0);
+            }
+            if (sortType === 'rating_asc') {
+                // 低到高
+                return (Number(a.rating) || 0) - (Number(b.rating) || 0);
+            }
+        });
 
     renderAnime(result);
 }
