@@ -1,10 +1,7 @@
 // ↓↓↓ 請在這裡貼上你最新的 GAS 網址 ↓↓↓
-const apiUrl = "https://script.google.com/macros/s/AKfycbzbyQYGziyhu6kThVsFVgyhwG4TOljoPJ1hgK9IRaZlmTZKrkOoyh1IDeO0JkQO8dhZIw/exec";
+const apiUrl = "https://script.google.com/macros/s/AKfycbzQL1NNigMXotZCD4iqT2nTN08yfRrrI9UZYuTO9sUx7QX4ibHss7y5ofCWxl9JSOUh8A/exec";
 
-// 預設圖片 (待更新)
 const defaultImg = "https://placehold.co/200x300/e0e0e0/333333?text=待更新&font=roboto";
-
-// 分頁設定
 const itemsPerPage = 20;
 let currentPage = 1;
 let allAnimeData = [];
@@ -31,7 +28,6 @@ async function fetchAnimeData() {
         btnLoadMoreContainer.style.display = 'none';
         const response = await fetch(apiUrl);
         const data = await response.json();
-        
         if (!Array.isArray(data)) throw new Error("資料格式錯誤");
         allAnimeData = data;
         applyFilterAndSort();
@@ -45,25 +41,15 @@ async function fetchAnimeData() {
 function applyFilterAndSort() {
     let result = [...allAnimeData];
 
-    // Search
     const keyword = searchInput.value.toLowerCase().trim();
-    if (keyword) {
-        result = result.filter(item => String(item.title).toLowerCase().includes(keyword));
-    }
+    if (keyword) result = result.filter(item => String(item.title).toLowerCase().includes(keyword));
 
-    // Status Filter
     const category = filterSelect.value;
-    if (category !== 'all') {
-        result = result.filter(item => item.status === category);
-    }
+    if (category !== 'all') result = result.filter(item => item.status === category);
 
-    // Type Filter
     const type = typeSelect.value;
-    if (type !== 'all') {
-        result = result.filter(item => item.type === type);
-    }
+    if (type !== 'all') result = result.filter(item => item.type === type);
 
-    // Sort
     const sortType = sortSelect.value;
     result.sort((a, b) => {
         if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
@@ -74,7 +60,6 @@ function applyFilterAndSort() {
         if (sortType === 'rating_asc') return (Number(a.rating) || 0) - (Number(b.rating) || 0);
     });
 
-    // Reset Pagination
     currentFilteredData = result;
     currentPage = 1;
     gridContainer.innerHTML = '';
@@ -92,14 +77,9 @@ function loadMoreAnime() {
         btnLoadMoreContainer.style.display = 'none';
         return;
     }
-
     renderAnime(dataChunk);
-
-    if (end >= currentFilteredData.length) {
-        btnLoadMoreContainer.style.display = 'none';
-    } else {
-        btnLoadMoreContainer.style.display = 'block';
-    }
+    if (end >= currentFilteredData.length) btnLoadMoreContainer.style.display = 'none';
+    else btnLoadMoreContainer.style.display = 'block';
 }
 
 // --- 4. 渲染卡片 ---
@@ -107,7 +87,6 @@ function renderAnime(data) {
     data.forEach(anime => {
         const starHTML = getStarString(anime.rating);
         const displayImg = anime.image ? anime.image : defaultImg;
-
         const card = document.createElement('div');
         card.className = 'anime-card';
         card.style.animation = "fadeIn 0.5s ease";
@@ -128,23 +107,18 @@ function renderAnime(data) {
 // --- 5. 詳細彈窗 ---
 function openDetailModal(anime) {
     document.getElementById('modal-title').innerText = anime.title;
-    
     const imgEl = document.getElementById('modal-img');
     imgEl.src = anime.image ? anime.image : defaultImg;
     imgEl.onerror = function() { this.src = defaultImg; };
-
     document.getElementById('modal-rating').innerHTML = getStarString(anime.rating);
-    
     const statusSpan = document.getElementById('modal-status');
     statusSpan.innerText = anime.statusText;
     statusSpan.className = `status-badge ${anime.status}`;
-
     document.getElementById('modal-id').innerText = anime.id;
     document.getElementById('modal-eps').innerText = anime.episodes;
     document.getElementById('modal-date').innerText = anime.date;
     document.getElementById('modal-note').innerText = anime.note || "無";
 
-    // 搜尋去括號
     let searchTitle = anime.title.replace(/[\(（].*$/, '').trim();
     const encoded = encodeURIComponent(searchTitle);
     document.getElementById('link-bahamut').href = `https://ani.gamer.com.tw/search.php?keyword=${encoded}`;
@@ -153,18 +127,15 @@ function openDetailModal(anime) {
     document.getElementById('btn-edit').onclick = () => openEditForm(anime);
     document.getElementById('btn-delete').onclick = () => deleteAnime(anime);
 
-    // 同系列邏輯
     const relatedArea = document.getElementById('related-series-area');
     const relatedList = document.getElementById('related-list');
     relatedList.innerHTML = '';
-
     if (anime.id && String(anime.id).includes('-')) {
         const currentSeriesId = String(anime.id).split('-')[0];
         const siblings = allAnimeData.filter(item => {
             if (!item.id || !String(item.id).includes('-')) return false;
             return String(item.id).split('-')[0] === currentSeriesId;
         });
-
         if (siblings.length > 1) {
             siblings.sort((a, b) => String(a.id).localeCompare(String(b.id)));
             siblings.forEach(item => {
@@ -172,14 +143,12 @@ function openDetailModal(anime) {
                 const isCurrent = (item.id === anime.id);
                 btn.className = isCurrent ? 'related-item current' : 'related-item';
                 btn.innerText = item.title;
-                if (!isCurrent) {
-                    btn.onclick = () => openDetailModal(item);
-                }
+                if (!isCurrent) btn.onclick = () => openDetailModal(item);
                 relatedList.appendChild(btn);
             });
             relatedArea.style.display = 'block';
-        } else { relatedArea.style.display = 'none'; }
-    } else { relatedArea.style.display = 'none'; }
+        } else relatedArea.style.display = 'none';
+    } else relatedArea.style.display = 'none';
 
     detailModal.style.display = "block";
     document.body.style.overflow = "hidden";
@@ -189,15 +158,22 @@ function openDetailModal(anime) {
 function openEditForm(anime = null) {
     detailModal.style.display = "none";
     formModal.style.display = "block";
+    
     const sheetSelect = document.getElementById('form-sheet-select');
+    const statusSelect = document.getElementById('form-status-select');
 
     if (anime) {
         document.getElementById('form-header-title').innerText = "修改動畫資料";
         document.getElementById('form-action').value = "edit";
         document.getElementById('form-rowIndex').value = anime.rowIndex;
-        document.getElementById('form-sheetName').value = anime.sheetName;
-        sheetSelect.value = anime.sheetName;
-        sheetSelect.disabled = true;
+        // ★ 關鍵：把原本的表名存起來，如果之後 sheetName 變了，後端就知道要搬家
+        document.getElementById('form-sheetName').value = anime.sheetName; 
+
+        // 判斷類型與狀態
+        sheetSelect.value = anime.sheetName.includes("多季") ? "多季" : "單季";
+        sheetSelect.disabled = true; // 修改時鎖定類型
+
+        statusSelect.value = (anime.status === 'watched') ? 'watched' : 'unwatched';
 
         document.getElementById('form-id').value = anime.id;
         document.getElementById('form-title-input').value = anime.title;
@@ -210,12 +186,14 @@ function openEditForm(anime = null) {
         document.getElementById('form-header-title').innerText = "新增動畫";
         document.getElementById('form-action').value = "add";
         document.getElementById('anime-form').reset();
+        
         sheetSelect.disabled = false;
         sheetSelect.value = "單季";
+        statusSelect.value = "watched";
     }
 }
 
-// 自動抓圖 (Jikan API)
+// 自動抓圖
 document.getElementById('btn-auto-img').addEventListener('click', async () => {
     const titleInput = document.getElementById('form-title-input');
     const imgInput = document.getElementById('form-img');
@@ -247,12 +225,28 @@ animeForm.onsubmit = async (e) => {
     const originalText = btn.innerText;
     btn.innerText = "處理中..."; btn.disabled = true;
 
+    // --- 關鍵邏輯：決定要寫入哪個工作表 ---
+    const sheetType = document.getElementById('form-sheet-select').value;
+    const status = document.getElementById('form-status-select').value;
+    let finalSheetName = "";
+
+    if (sheetType === "多季") {
+        finalSheetName = "多季";
+    } else {
+        // 單季的情況，根據狀態決定去哪
+        finalSheetName = (status === "watched") ? "單季" : "單季 未看";
+    }
+
+    // ★ Debug 訊息 (按 F12 打開 Console 觀看)
+    console.log("舊表名:", document.getElementById('form-sheetName').value);
+    console.log("新表名:", finalSheetName);
+
     const formData = {
         action: document.getElementById('form-action').value,
         rowIndex: document.getElementById('form-rowIndex').value,
-        sheetName: (document.getElementById('form-action').value === 'add') 
-                   ? document.getElementById('form-sheet-select').value 
-                   : document.getElementById('form-sheetName').value,
+        originalSheetName: document.getElementById('form-sheetName').value, // 傳舊名字
+        sheetName: finalSheetName, // 傳新名字 (如果跟舊的不同，後端就會執行搬移)
+        
         id: document.getElementById('form-id').value,
         title: document.getElementById('form-title-input').value,
         date: document.getElementById('form-date').value,
@@ -260,7 +254,7 @@ animeForm.onsubmit = async (e) => {
         rating: document.getElementById('form-rating').value,
         image: document.getElementById('form-img').value,
         note: document.getElementById('form-note').value,
-        status: "watched"
+        status: status
     };
 
     try {
@@ -272,7 +266,6 @@ animeForm.onsubmit = async (e) => {
     finally { btn.innerText = originalText; btn.disabled = false; }
 };
 
-// 刪除
 async function deleteAnime(anime) {
     if (!confirm(`確定要刪除「${anime.title}」嗎？`)) return;
     try {
@@ -287,28 +280,11 @@ async function deleteAnime(anime) {
     } catch (error) { alert("刪除失敗"); document.getElementById('modal-title').innerText = anime.title; }
 }
 
-// 載入更多
-btnLoadMore.addEventListener('click', () => {
-    currentPage++;
-    loadMoreAnime();
-});
+btnLoadMore.addEventListener('click', () => { currentPage++; loadMoreAnime(); });
+function getStarString(rating) { if (!rating) return ""; const s = Math.max(0, Math.min(5, parseInt(rating))); return "★".repeat(s) + "☆".repeat(5 - s); }
+function closeModal(id) { document.getElementById(id).style.display = "none"; document.body.style.overflow = "auto"; }
+window.onclick = (e) => { if (e.target == detailModal) closeModal('detail-modal'); if (e.target == formModal) closeModal('form-modal'); }
 
-// 工具
-function getStarString(rating) {
-    if (!rating) return "";
-    const score = Math.max(0, Math.min(5, parseInt(rating)));
-    return "★".repeat(score) + "☆".repeat(5 - score);
-}
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = "none";
-    document.body.style.overflow = "auto";
-}
-window.onclick = (event) => {
-    if (event.target == detailModal) closeModal('detail-modal');
-    if (event.target == formModal) closeModal('form-modal');
-}
-
-// 監聽
 searchInput.addEventListener('input', applyFilterAndSort);
 filterSelect.addEventListener('change', applyFilterAndSort);
 typeSelect.addEventListener('change', applyFilterAndSort);
