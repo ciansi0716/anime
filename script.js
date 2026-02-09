@@ -2,8 +2,7 @@
 const apiUrl = "https://script.google.com/macros/s/AKfycbzQL1NNigMXotZCD4iqT2nTN08yfRrrI9UZYuTO9sUx7QX4ibHss7y5ofCWxl9JSOUh8A/exec";
 
 const defaultImg = "https://placehold.co/200x300/e0e0e0/333333?text=待更新&font=roboto";
-const itemsPerPage = 20;
-let currentPage = 1;
+
 let allAnimeData = [];
 let currentFilteredData = [];
 
@@ -38,32 +37,36 @@ async function fetchAnimeData() {
 }
 
 // --- 2. 篩選與排序 ---
+f// --- 2. 篩選與排序 (顯示全部版) ---
 function applyFilterAndSort() {
     let result = [...allAnimeData];
 
+    // 搜尋
     const keyword = searchInput.value.toLowerCase().trim();
     if (keyword) result = result.filter(item => String(item.title).toLowerCase().includes(keyword));
 
+    // 狀態篩選
     const category = filterSelect.value;
     if (category !== 'all') result = result.filter(item => item.status === category);
 
+    // 類型篩選
     const type = typeSelect.value;
     if (type !== 'all') result = result.filter(item => item.type === type);
 
+    // 排序
     const sortType = sortSelect.value;
     result.sort((a, b) => {
+        // --- 日期排序 (防呆版) ---
         if (sortType === 'newest' || sortType === 'oldest') {
-            // 把日期轉成毫秒數 (Timestamp)
-            // 如果日期是空的，就設為 0 (代表很久很久以前)
             const timeA = a.date ? new Date(a.date).getTime() : 0;
             const timeB = b.date ? new Date(b.date).getTime() : 0;
-
-            // 再次檢查：如果格式錯誤變成 NaN，也當作 0
             const safeA = isNaN(timeA) ? 0 : timeA;
             const safeB = isNaN(timeB) ? 0 : timeB;
-            if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
-            if (sortType === 'oldest') return new Date(a.date) - new Date(b.date);
+
+            if (sortType === 'newest') return safeB - safeA;
+            if (sortType === 'oldest') return safeA - safeB;
         }
+
         if (sortType === 'id_asc') return String(a.id).localeCompare(String(b.id));
         if (sortType === 'id_desc') return String(b.id).localeCompare(String(a.id));
         if (sortType === 'rating_desc') return (Number(b.rating) || 0) - (Number(a.rating) || 0);
@@ -71,9 +74,15 @@ function applyFilterAndSort() {
     });
 
     currentFilteredData = result;
-    currentPage = 1;
+    
+    // ★★★ 修改這裡：直接清空並渲染全部資料 ★★★
     gridContainer.innerHTML = '';
-    loadMoreAnime();
+    
+    if (currentFilteredData.length === 0) {
+        gridContainer.innerHTML = "<p style='grid-column:1/-1;text-align:center;'>沒有符合條件的動畫。</p>";
+    } else {
+        renderAnime(currentFilteredData); // 直接傳入所有資料
+    }
 }
 
 // --- 3. 分頁載入 ---
@@ -306,7 +315,7 @@ async function deleteAnime(anime) {
     } catch (error) { alert("刪除失敗"); document.getElementById('modal-title').innerText = anime.title; }
 }
 
-btnLoadMore.addEventListener('click', () => { currentPage++; loadMoreAnime(); });
+
 function getStarString(rating) { if (!rating) return ""; const s = Math.max(0, Math.min(5, parseInt(rating))); return "★".repeat(s) + "☆".repeat(5 - s); }
 function closeModal(id) { document.getElementById(id).style.display = "none"; document.body.style.overflow = "auto"; }
 window.onclick = (e) => { if (e.target == detailModal) closeModal('detail-modal'); if (e.target == formModal) closeModal('form-modal'); }
