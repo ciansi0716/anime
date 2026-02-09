@@ -52,8 +52,18 @@ function applyFilterAndSort() {
 
     const sortType = sortSelect.value;
     result.sort((a, b) => {
-        if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
-        if (sortType === 'oldest') return new Date(a.date) - new Date(b.date);
+        if (sortType === 'newest' || sortType === 'oldest') {
+            // 把日期轉成毫秒數 (Timestamp)
+            // 如果日期是空的，就設為 0 (代表很久很久以前)
+            const timeA = a.date ? new Date(a.date).getTime() : 0;
+            const timeB = b.date ? new Date(b.date).getTime() : 0;
+
+            // 再次檢查：如果格式錯誤變成 NaN，也當作 0
+            const safeA = isNaN(timeA) ? 0 : timeA;
+            const safeB = isNaN(timeB) ? 0 : timeB;
+            if (sortType === 'newest') return new Date(b.date) - new Date(a.date);
+            if (sortType === 'oldest') return new Date(a.date) - new Date(b.date);
+        }
         if (sortType === 'id_asc') return String(a.id).localeCompare(String(b.id));
         if (sortType === 'id_desc') return String(b.id).localeCompare(String(a.id));
         if (sortType === 'rating_desc') return (Number(b.rating) || 0) - (Number(a.rating) || 0);
@@ -177,6 +187,22 @@ function openEditForm(anime = null) {
 
         document.getElementById('form-id').value = anime.id;
         document.getElementById('form-title-input').value = anime.title;
+        if (anime.date) {
+            // 先把日期裡的斜線 / 換成橫線 -
+            let d = new Date(anime.date.replace(/\//g, '-')); 
+            
+            // 檢查是否為有效日期
+            if (!isNaN(d.getTime())) {
+                let year = d.getFullYear();
+                let month = ('0' + (d.getMonth() + 1)).slice(-2); // 補零
+                let day = ('0' + d.getDate()).slice(-2);     // 補零
+                document.getElementById('form-date').value = `${year}-${month}-${day}`;
+            } else {
+                document.getElementById('form-date').value = "";
+            }
+        } else {
+            document.getElementById('form-date').value = "";
+        }
         document.getElementById('form-date').value = anime.date;
         document.getElementById('form-eps').value = anime.episodes;
         document.getElementById('form-rating').value = anime.rating;
