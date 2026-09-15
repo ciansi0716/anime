@@ -40,10 +40,9 @@
     </header>
 
     <div id="anime-grid" class="grid-container">
-        <p class="loading-text">正在讀取試算表資料...</p>
+        <p class="loading-text">正在讀取資料...</p>
     </div>
     
-
     <div id="detail-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('detail-modal')">&times;</span>
@@ -81,8 +80,6 @@
             <span class="close-btn" onclick="closeModal('form-modal')">&times;</span>
             <h2 id="form-header-title">編輯動畫</h2>
             <form id="anime-form">
-                <input type="hidden" id="form-rowIndex">
-                <input type="hidden" id="form-sheetName"> 
                 <input type="hidden" id="form-action">
 
                 <div class="form-group">
@@ -104,7 +101,7 @@
                 <div class="form-row">
                     <div class="form-group half">
                         <label>編號 (ID):</label>
-                        <input type="text" id="form-id" placeholder="例: 001-01" required>
+                        <input type="text" id="form-id" placeholder="例: 0372-01" required>
                     </div>
                     <div class="form-group half">
                         <label>上架日期:</label>
@@ -130,13 +127,7 @@
 
                 <div class="form-group">
                     <label>圖片連結:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="form-img" placeholder="https://..." style="flex: 1;">
-                        <button type="button" id="btn-auto-img" class="action-btn" style="background-color: #6f42c1; width: auto; white-space: nowrap;">
-                            🔍 自動抓圖
-                        </button>
-                    </div>
-                    <small style="color: #666; font-size: 0.8em;">提示：先輸入動畫名稱，再點擊自動抓圖</small>
+                    <input type="text" id="form-img" placeholder="https://...">
                 </div>
 
                 <div class="form-group">
@@ -149,6 +140,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
