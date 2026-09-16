@@ -1,20 +1,20 @@
 body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; color: #333; }
 header { text-align: center; margin-bottom: 30px; }
 .controls-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-#search-input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 220px; }
-select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: white; }
-.action-btn { border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: opacity 0.2s; }
+#search-input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 220px; font-size: 1rem; }
+select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: white; font-size: 1rem; }
+.action-btn { border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: opacity 0.2s; font-size: 1rem; }
 .action-btn:hover { opacity: 0.8; }
 .add-btn { background-color: #28a745; }
 .edit-btn { background-color: #ffc107; color: #333; margin-right: 10px; }
 .delete-btn { background-color: #dc3545; }
-.submit-btn { background-color: #007bff; width: 100%; margin-top: 10px; font-size: 1.1em; }
+.submit-btn { background-color: #007bff; width: 100%; margin-top: 10px; font-size: 1.2em; }
 
-/* 🌟 一行 6 個，間距改回原本的 25px */
+/* 🌟 電腦版維持一行 6 個，間距 25px */
 .grid-container { 
     display: grid; 
     grid-template-columns: repeat(6, 1fr); 
-    gap: 25px; /* 恢復原本的寬間距 */
+    gap: 25px; 
     max-width: 1200px; 
     margin: 0 auto; 
 }
@@ -23,7 +23,7 @@ select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: 
 
 .anime-card { 
     background: white; 
-    border-radius: 8px; /* 稍微縮小圓角配合小卡片 */
+    border-radius: 8px; 
     overflow: hidden; 
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
     transition: transform 0.2s; 
@@ -34,7 +34,7 @@ select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: 
 }
 .anime-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
 
-/* 圖片維持 3:4 比例 */
+/* 圖片維持完美的 3:4 比例 */
 .anime-card img { 
     width: 100%; 
     height: auto; 
@@ -43,41 +43,54 @@ select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: 
     background: #eee; 
 }
 
-/* 🌟 終極縮小版：卡片內的文字、留白、星星全部縮小，讓卡片變短 */
+/* 🌟 卡片文字區：字體全面放大兩個字號！ */
 .card-info { padding: 8px; flex-grow: 1; }
-.card-info h3 { font-size: 0.85rem; margin: 0 0 3px 0; line-height: 1.2; } /* 標題字體縮小 */
-.card-info p { font-size: 0.75rem; margin: 3px 0; color: #555; } /* 日期字體縮小 */
+.card-info h3 { font-size: 1.1rem; margin: 0 0 5px 0; line-height: 1.3; } /* 標題明顯放大 */
+.card-info p { font-size: 0.95rem; margin: 4px 0; color: #555; } /* 日期放大 */
 
-.status-badge { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: 0.7em; color: white; font-weight: bold; }
+.status-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.9rem; color: white; font-weight: bold; } /* 標籤放大 */
 .watched { background-color: #28a745; }
 .unwatched { background-color: #6c757d; }
-.star-rating { color: #FFD700; font-size: 0.8rem; margin: 2px 0; } /* 星星縮小 */
+.star-rating { color: #FFD700; font-size: 1.1rem; margin: 4px 0; } /* 星星放大 */
 
 .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); overflow-y: auto; }
-.modal-content { background-color: #fff; margin: 5% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 800px; position: relative; }
+.modal-content { background-color: #fff; margin: 5% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 800px; position: relative; font-size: 1.1rem; }
 .form-content { max-width: 500px; }
-.close-btn { position: absolute; top: 15px; right: 25px; color: #aaa; font-size: 30px; cursor: pointer; }
+.close-btn { position: absolute; top: 15px; right: 25px; color: #aaa; font-size: 35px; cursor: pointer; }
 .modal-body { display: flex; gap: 30px; align-items: flex-start; }
 #modal-img { width: 250px; border-radius: 8px; }
 .modal-info { flex: 1; }
-.btn-link { display: inline-block; padding: 10px 20px; margin-right: 10px; margin-top: 10px; text-decoration: none; color: white; border-radius: 5px; font-weight: bold; }
+.btn-link { display: inline-block; padding: 10px 20px; margin-right: 10px; margin-top: 10px; text-decoration: none; color: white; border-radius: 5px; font-weight: bold; font-size: 1rem; }
 .baha { background-color: #00b4d8; } .bili { background-color: #ff6699; }
 #related-series-area { margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px; border-left: 5px solid #00b4d8; }
 .related-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-.related-item { background: white; border: 1px solid #ddd; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; }
+.related-item { background: white; border: 1px solid #ddd; padding: 6px 12px; border-radius: 20px; font-size: 1rem; cursor: pointer; }
 .related-item.current { background: #00b4d8; color: white; border-color: #00b4d8; cursor: default; }
 .form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 1.05rem; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
 .form-row { display: flex; gap: 10px; } .half { flex: 1; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* RWD 響應式設計 */
-@media (max-width: 1200px) { .grid-container { grid-template-columns: repeat(4, 1fr); max-width: 900px; } }
-@media (max-width: 900px) { .grid-container { grid-template-columns: repeat(3, 1fr); max-width: 650px; } }
+/* ==========================================
+   🌟 RWD 響應式設計 (手機/平板排版切換)
+========================================== */
+@media (max-width: 1200px) { .grid-container { grid-template-columns: repeat(5, 1fr); max-width: 1000px; } }
+@media (max-width: 900px) { .grid-container { grid-template-columns: repeat(4, 1fr); max-width: 800px; } }
+
+/* 平板尺寸 */
 @media (max-width: 768px) { 
-    .grid-container { grid-template-columns: repeat(2, 1fr); max-width: 450px;} 
+    .grid-container { grid-template-columns: repeat(4, 1fr); max-width: 100%; gap: 15px; } 
     .modal-body { flex-direction: column; } 
     #modal-img { width: 100%; max-width: 250px; margin: 0 auto; } 
 }
-@media (max-width: 480px) { .grid-container { grid-template-columns: 1fr; max-width: 280px; } }
+
+/* 🌟 手機版特製：強制一行 3 個動畫！ */
+@media (max-width: 480px) { 
+    body { padding: 10px; } /* 縮小螢幕邊界，把空間讓給卡片 */
+    .grid-container { 
+        grid-template-columns: repeat(3, 1fr); /* 強制一行 3 欄 */
+        gap: 8px; /* 稍微縮小卡片之間的空隙，避免太擠 */
+    } 
+    .card-info { padding: 6px; } /* 稍微壓縮內邊距讓大字體塞得下 */
+}
