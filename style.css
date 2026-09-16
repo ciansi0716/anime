@@ -10,7 +10,7 @@ select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: 
 .delete-btn { background-color: #dc3545; }
 .submit-btn { background-color: #007bff; width: 100%; margin-top: 10px; font-size: 1.2em; }
 
-/* 🌟 電腦版維持一行 6 個，間距 25px */
+/* 🌟 電腦版：一行 6 個，寬間距 25px */
 .grid-container { 
     display: grid; 
     grid-template-columns: repeat(6, 1fr); 
@@ -34,7 +34,7 @@ select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: 
 }
 .anime-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
 
-/* 圖片維持完美的 3:4 比例 */
+/* 🌟 圖片維持 3:4 比例 */
 .anime-card img { 
     width: 100%; 
     height: auto; 
@@ -43,15 +43,15 @@ select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: 
     background: #eee; 
 }
 
-/* 🌟 卡片文字區：字體全面放大兩個字號！ */
+/* 🌟 卡片文字區：字體全面放大 */
 .card-info { padding: 8px; flex-grow: 1; }
-.card-info h3 { font-size: 1.1rem; margin: 0 0 5px 0; line-height: 1.3; } /* 標題明顯放大 */
-.card-info p { font-size: 0.95rem; margin: 4px 0; color: #555; } /* 日期放大 */
+.card-info h3 { font-size: 1.1rem; margin: 0 0 5px 0; line-height: 1.3; } 
+.card-info p { font-size: 0.95rem; margin: 4px 0; color: #555; } 
 
-.status-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.9rem; color: white; font-weight: bold; } /* 標籤放大 */
+.status-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.9rem; color: white; font-weight: bold; } 
 .watched { background-color: #28a745; }
 .unwatched { background-color: #6c757d; }
-.star-rating { color: #FFD700; font-size: 1.1rem; margin: 4px 0; } /* 星星放大 */
+.star-rating { color: #FFD700; font-size: 1.1rem; margin: 4px 0; } 
 
 .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); overflow-y: auto; }
 .modal-content { background-color: #fff; margin: 5% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 800px; position: relative; font-size: 1.1rem; }
@@ -85,12 +85,12 @@ select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: 
     #modal-img { width: 100%; max-width: 250px; margin: 0 auto; } 
 }
 
-/* 🌟 手機版特製：強制一行 3 個動畫！ */
-@media (max-width: 480px) { 
+/* 🌟 手機版特製 (涵蓋 iPhone 17 / Pro Max)：強制一行 3 個動畫！ */
+@media (max-width: 600px) { 
     body { padding: 10px; } /* 縮小螢幕邊界，把空間讓給卡片 */
     .grid-container { 
         grid-template-columns: repeat(3, 1fr); /* 強制一行 3 欄 */
         gap: 8px; /* 稍微縮小卡片之間的空隙，避免太擠 */
     } 
-    .card-info { padding: 6px; } /* 稍微壓縮內邊距讓大字體塞得下 */
+    .card-info { padding: 6px; } 
 }

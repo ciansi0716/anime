@@ -230,10 +230,8 @@ animeForm.onsubmit = async (e) => {
     };
 
     try {
-        // 寫入 Firebase
         await setDoc(doc(db, "animes", newId), firestoreData);
         
-        // 背景同步到 Google 試算表
         if (gasApiUrl && gasApiUrl !== "你的_GAS_網頁應用程式_網址") {
             const syncData = { ...firestoreData, action: document.getElementById('form-action').value };
             fetch(gasApiUrl, {
@@ -276,13 +274,11 @@ async function deleteAnime(anime) {
     }
 }
 
-// 工具函式
 function getStarString(rating) {
     if (!rating) return "";
     const s = Math.max(0, Math.min(5, parseInt(rating)));
     return "★".repeat(s) + "☆".repeat(5 - s);
 }
-
 function closeModal(id) {
     document.getElementById(id).style.display = "none";
     document.body.style.overflow = "auto";
