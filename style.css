@@ -48,9 +48,12 @@ select { padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: 
 .card-info h3 { font-size: 1.1rem; margin: 0 0 5px 0; line-height: 1.3; } 
 .card-info p { font-size: 0.95rem; margin: 4px 0; color: #555; } 
 
+/* 🌟 狀態標籤顏色：已觀看(綠)、未觀看(灰)、沒興趣(紅) */
 .status-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.9rem; color: white; font-weight: bold; } 
 .watched { background-color: #28a745; }
 .unwatched { background-color: #6c757d; }
+.dropped { background-color: #dc3545; }
+
 .star-rating { color: #FFD700; font-size: 1.1rem; margin: 4px 0; } 
 
 .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); overflow-y: auto; }

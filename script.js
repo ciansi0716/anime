@@ -41,7 +41,20 @@ async function fetchAnimeData() {
         allAnimeData = [];
         querySnapshot.forEach((docSnap) => {
             const d = docSnap.data();
-            const isWatched = String(d.watchStatus).toUpperCase() === 'TRUE' || d.watchStatus === 'watched' || d.watchStatus === 'TRUE';
+            
+            // 🌟 判斷三種觀看狀態（同時相容舊有的 TRUE/FALSE 與新增的沒興趣）
+            const rawStatus = String(d.watchStatus || "").trim().toUpperCase();
+            let status = 'unwatched';
+            let statusText = '未觀看';
+
+            if (rawStatus === 'TRUE' || rawStatus === 'WATCHED' || rawStatus === '已觀看') {
+                status = 'watched';
+                statusText = '已觀看';
+            } else if (rawStatus === 'DROPPED' || rawStatus === 'UNINTERESTED' || rawStatus === '沒興趣') {
+                status = 'dropped';
+                statusText = '沒興趣';
+            }
+
             allAnimeData.push({
                 id: docSnap.id,
                 title: d.title || "",
@@ -50,8 +63,8 @@ async function fetchAnimeData() {
                 rating: d.rating || "",
                 image: d.imageUrl || "",
                 note: d.notes || "",
-                status: isWatched ? 'watched' : 'unwatched',
-                statusText: isWatched ? '已觀看' : '未觀看',
+                status: status,
+                statusText: statusText,
                 type: d.animeType || 'single',
             });
         });
@@ -181,7 +194,10 @@ function openEditForm(anime = null) {
         document.getElementById('form-id').readOnly = true; 
         document.getElementById('form-id').style.backgroundColor = "#e9ecef";
         sheetSelect.value = (anime.type === 'multi') ? "多季" : "單季";
-        statusSelect.value = (anime.status === 'watched') ? 'watched' : 'unwatched';
+        
+        // 🌟 直接對應 watched / unwatched / dropped
+        statusSelect.value = anime.status;
+        
         document.getElementById('form-title-input').value = anime.title;
         if (anime.date) {
             let d = new Date(anime.date.replace(/\//g, '-')); 
@@ -217,6 +233,16 @@ animeForm.onsubmit = async (e) => {
     btn.innerText = "處理中..."; btn.disabled = true;
 
     const newId = document.getElementById('form-id').value;
+    
+    // 🌟 轉換要存入 Firebase 與試算表的狀態值
+    const selectedStatus = document.getElementById('form-status-select').value;
+    let watchStatusValue = 'FALSE';
+    if (selectedStatus === 'watched') {
+        watchStatusValue = 'TRUE';
+    } else if (selectedStatus === 'dropped') {
+        watchStatusValue = '沒興趣';
+    }
+
     const firestoreData = {
         id: newId,
         title: document.getElementById('form-title-input').value,
@@ -225,7 +251,7 @@ animeForm.onsubmit = async (e) => {
         rating: document.getElementById('form-rating').value,
         imageUrl: document.getElementById('form-img').value,
         notes: document.getElementById('form-note').value,
-        watchStatus: document.getElementById('form-status-select').value === 'watched' ? 'TRUE' : 'FALSE',
+        watchStatus: watchStatusValue,
         animeType: document.getElementById('form-sheet-select').value === '多季' ? 'multi' : 'single'
     };
 
