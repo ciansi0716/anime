@@ -42,7 +42,7 @@ async function fetchAnimeData() {
         querySnapshot.forEach((docSnap) => {
             const d = docSnap.data();
             
-            // 🌟 判斷三種觀看狀態（同時相容舊有的 TRUE/FALSE 與新增的沒興趣）
+            // 🌟 判斷三種觀看狀態
             const rawStatus = String(d.watchStatus || "").trim().toUpperCase();
             let status = 'unwatched';
             let statusText = '未觀看';
@@ -195,7 +195,6 @@ function openEditForm(anime = null) {
         document.getElementById('form-id').style.backgroundColor = "#e9ecef";
         sheetSelect.value = (anime.type === 'multi') ? "多季" : "單季";
         
-        // 🌟 直接對應 watched / unwatched / dropped
         statusSelect.value = anime.status;
         
         document.getElementById('form-title-input').value = anime.title;
@@ -234,7 +233,7 @@ animeForm.onsubmit = async (e) => {
 
     const newId = document.getElementById('form-id').value;
     
-    // 🌟 轉換要存入 Firebase 與試算表的狀態值
+    // 轉換要存入 Firebase 與試算表的狀態值
     const selectedStatus = document.getElementById('form-status-select').value;
     let watchStatusValue = 'FALSE';
     if (selectedStatus === 'watched') {
@@ -310,10 +309,16 @@ function closeModal(id) {
     document.body.style.overflow = "auto";
 }
 window.closeModal = closeModal; 
+
+// 🌟 修改點擊視窗外圍的行為
 window.onclick = (e) => {
-    if (e.target == detailModal) closeModal('detail-modal');
-    if (e.target == formModal) closeModal('form-modal');
+    // 只允許點擊背景關閉「詳細資訊」彈窗 (detailModal)
+    // 移除了 formModal，這樣點表單外面的黑色背景就不會把表單關掉
+    if (e.target == detailModal) {
+        closeModal('detail-modal');
+    }
 }
+
 searchInput.addEventListener('input', applyFilterAndSort);
 filterSelect.addEventListener('change', applyFilterAndSort);
 typeSelect.addEventListener('change', applyFilterAndSort);
